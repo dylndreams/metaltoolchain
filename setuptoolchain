@@ -14,6 +14,7 @@ BINUTILS_VERSION=2.37
 GCC_VERSION=10.2.0
 NEWLIB_VERSION=4.1.0
 PREFIX=/usr/local/sh-elf
+export PATH=$PREFIX/bin:$PATH
 
 # Create directory for toolchain source
 mkdir -p $TOOLCHAIN_DIR
@@ -60,7 +61,6 @@ sudo make install-gcc
 
 # Build and install Newlib
 log "Building and installing Newlib"
-export PATH=$PREFIX/bin:$PATH
 cd $TOOLCHAIN_DIR/newlib-$NEWLIB_VERSION
 mkdir build
 cd build

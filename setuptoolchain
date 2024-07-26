@@ -60,6 +60,7 @@ sudo make install-gcc
 
 # Build and install Newlib
 log "Building and installing Newlib"
+export PATH=$PREFIX/bin:$PATH
 cd $TOOLCHAIN_DIR/newlib-$NEWLIB_VERSION
 mkdir build
 cd build
@@ -81,4 +82,3 @@ sh-elf-gcc --version
 sh-elf-ld --version
 
 log "SH-ELF toolchain installation completed successfully"
-

@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Function to print messages
+log() {
+    echo "==== $1 ===="
+}
+
+# Directory for the toolchain source
+TOOLCHAIN_DIR=$HOME/sh-elf-toolchain
+BINUTILS_VERSION=2.37
+GCC_VERSION=10.2.0
+NEWLIB_VERSION=4.1.0
+PREFIX=/usr/local/sh-elf
+
+# Create directory for toolchain source
+mkdir -p $TOOLCHAIN_DIR
+cd $TOOLCHAIN_DIR
+
+# Update and install prerequisites
+log "Installing prerequisites"
+sudo apt-get update
+sudo apt-get install -y build-essential libgmp-dev libmpfr-dev libmpc-dev texinfo flex bison wget
+
+# Download and extract binutils
+log "Downloading and extracting binutils"
+wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
+tar -xzvf binutils-$BINUTILS_VERSION.tar.gz
+
+# Download and extract GCC
+log "Downloading and extracting GCC"
+wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+tar -xzvf gcc-$GCC_VERSION.tar.gz
+
+# Download and extract Newlib
+log "Downloading and extracting Newlib"
+wget ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
+tar -xzvf newlib-$NEWLIB_VERSION.tar.gz
+
+# Build and install binutils
+log "Building and installing binutils"
+cd $TOOLCHAIN_DIR/binutils-$BINUTILS_VERSION
+mkdir build
+cd build
+../configure --target=sh-elf --prefix=$PREFIX --disable-nls --disable-werror
+make
+sudo make install
+
+# Build and install GCC (first stage)
+log "Building and installing GCC (first stage)"
+cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION
+./contrib/download_prerequisites
+mkdir build
+cd build
+../configure --target=sh-elf --prefix=$PREFIX --enable-languages=c,c++ --without-headers --disable-shared --disable-libssp --disable-libstdcxx --disable-threads --disable-nls --disable-bootstrap
+make all-gcc
+sudo make install-gcc
+
+# Build and install Newlib
+log "Building and installing Newlib"
+cd $TOOLCHAIN_DIR/newlib-$NEWLIB_VERSION
+mkdir build
+cd build
+../configure --target=sh-elf --prefix=$PREFIX
+make
+sudo make install
+
+# Complete GCC installation
+log "Completing GCC installation"
+cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION/build
+make all-target-libgcc
+sudo make install-target-libgcc
+
+# Verify the installation
+log "Verifying the installation"
+export PATH=$PREFIX/bin:$PATH
+
+sh-elf-gcc --version
+sh-elf-ld --version
+
+log "SH-ELF toolchain installation completed successfully"
+

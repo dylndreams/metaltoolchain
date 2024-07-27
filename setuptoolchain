@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -14,71 +14,113 @@ BINUTILS_VERSION=2.37
 GCC_VERSION=10.2.0
 NEWLIB_VERSION=4.1.0
 PREFIX=/usr/local/sh-elf
-export PATH=$PREFIX/bin:$PATH
 
 # Create directory for toolchain source
 mkdir -p $TOOLCHAIN_DIR
-cd $TOOLCHAIN_DIR
 
-# Update and install prerequisites
+# Function to download and extract sources
+download_sources() {
+    cd $TOOLCHAIN_DIR
+
+    # Download and extract binutils
+    if [ ! -d "binutils-$BINUTILS_VERSION" ]; then
+        log "Downloading and extracting binutils"
+        wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
+        tar -xzvf binutils-$BINUTILS_VERSION.tar.gz
+    fi
+
+    # Download and extract GCC
+    if [ ! -d "gcc-$GCC_VERSION" ]; then
+        log "Downloading and extracting GCC"
+        wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+        tar -xzvf gcc-$GCC_VERSION.tar.gz
+    fi
+
+    # Download and extract Newlib
+    if [ ! -d "newlib-$NEWLIB_VERSION" ]; then
+        log "Downloading and extracting Newlib"
+        wget ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
+        tar -xzvf newlib-$NEWLIB_VERSION.tar.gz
+    fi
+}
+
+# Function to build and install binutils
+build_binutils() {
+    cd $TOOLCHAIN_DIR/binutils-$BINUTILS_VERSION
+    mkdir -p build
+    cd build
+    ../configure --target=sh-elf --prefix=$PREFIX --disable-nls --disable-werror
+    make
+    sudo make install
+}
+
+# Function to build and install GCC (first stage)
+build_gcc() {
+    cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION
+    ./contrib/download_prerequisites
+    mkdir -p build
+    cd build
+    ../configure --target=sh-elf --prefix=$PREFIX --enable-languages=c,c++ --without-headers --disable-shared --disable-libssp --disable-libstdcxx --disable-threads --disable-nls --disable-bootstrap
+    make all-gcc
+    sudo make install-gcc
+}
+
+# Function to build and install Newlib
+build_newlib() {
+    cd $TOOLCHAIN_DIR/newlib-$NEWLIB_VERSION
+    mkdir -p build
+    cd build
+    ../configure --target=sh-elf --prefix=$PREFIX
+    make
+    sudo make install
+}
+
+# Function to complete GCC installation
+complete_gcc_installation() {
+    cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION/build
+    make all-target-libgcc
+    sudo make install-target-libgcc
+}
+
+# Function to verify the installation
+verify_installation() {
+    export PATH=$PREFIX/bin:$PATH
+    sh-elf-gcc --version
+    sh-elf-ld --version
+}
+
+# Parse command line arguments
+RECOMPILE_BINUTILS=false
+RECOMPILE_GCC=false
+RECOMPILE_NEWLIB=false
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --binutils) RECOMPILE_BINUTILS=true ;;
+        --gcc) RECOMPILE_GCC=true ;;
+        --newlib) RECOMPILE_NEWLIB=true ;;
+        --all) RECOMPILE_BINUTILS=true; RECOMPILE_GCC=true; RECOMPILE_NEWLIB=true ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+# Ensure prerequisites are installed
 log "Installing prerequisites"
 sudo apt-get update
 sudo apt-get install -y build-essential libgmp-dev libmpfr-dev libmpc-dev texinfo flex bison wget
 
-# Download and extract binutils
-log "Downloading and extracting binutils"
-wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
-tar -xzvf binutils-$BINUTILS_VERSION.tar.gz
+# Download sources if needed
+download_sources
 
-# Download and extract GCC
-log "Downloading and extracting GCC"
-wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
-tar -xzvf gcc-$GCC_VERSION.tar.gz
+# Recompile selected components
+[ "$RECOMPILE_BINUTILS" == true ] && build_binutils && export PATH=$PREFIX/bin:$PATH
+[ "$RECOMPILE_GCC" == true ] && build_gcc && complete_gcc_installation
+[ "$RECOMPILE_NEWLIB" == true ] && build_newlib
 
-# Download and extract Newlib
-log "Downloading and extracting Newlib"
-wget ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
-tar -xzvf newlib-$NEWLIB_VERSION.tar.gz
-
-# Build and install binutils
-log "Building and installing binutils"
-cd $TOOLCHAIN_DIR/binutils-$BINUTILS_VERSION
-mkdir build
-cd build
-../configure --target=sh-elf --prefix=$PREFIX --disable-nls --disable-werror
-make
-sudo make install
-
-# Build and install GCC (first stage)
-log "Building and installing GCC (first stage)"
-cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION
-./contrib/download_prerequisites
-mkdir build
-cd build
-../configure --target=sh-elf --prefix=$PREFIX --enable-languages=c,c++ --without-headers --disable-shared --disable-libssp --disable-libstdcxx --disable-threads --disable-nls --disable-bootstrap
-make all-gcc
-sudo make install-gcc
-
-# Build and install Newlib
-log "Building and installing Newlib"
-cd $TOOLCHAIN_DIR/newlib-$NEWLIB_VERSION
-mkdir build
-cd build
-../configure --target=sh-elf --prefix=$PREFIX
-make
-sudo make install
-
-# Complete GCC installation
-log "Completing GCC installation"
-cd $TOOLCHAIN_DIR/gcc-$GCC_VERSION/build
-make all-target-libgcc
-sudo make install-target-libgcc
-
-# Verify the installation
-log "Verifying the installation"
-export PATH=$PREFIX/bin:$PATH
-
-sh-elf-gcc --version
-sh-elf-ld --version
+# Verify installation if any component was recompiled
+if [ "$RECOMPILE_BINUTILS" == true ] || [ "$RECOMPILE_GCC" == true ] || [ "$RECOMPILE_NEWLIB" == true ]; then
+    verify_installation
+fi
 
 log "SH-ELF toolchain installation completed successfully"

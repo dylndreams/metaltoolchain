@@ -8,3 +8,7 @@ since it's only getting tested on the Dreamcast<br/>
 ## usage
 mark it as executable and then run it, that's it.<br/>
 make sure you don't have a version of sh-elf already<br/> 
+
+# Known Issues
+you may have to build newlib seperate<br/>
+debian/ubuntu is supported only, for now<br/>

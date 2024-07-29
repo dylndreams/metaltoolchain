@@ -10,4 +10,15 @@ This script provides options to recompile parts such as Newlib, GCC, and Binutil
 - `./setuptoolchain --gcc`
 - `./setuptoolchain --newlib`
 - `./setuptoolchain --binutils`
+Compiling all can be done with `./setuptoolchain --all`.
 
+## known issues
+GCC 13.2 doesn't compile, it just freezes. (fixed with downgrading version to 9.2)<br/>
+Newlib can't find `sh-elf-ranlib`, so the whole compiling breaks. (still fixing)<br/>
+IF Newlib builds, it won't work when used. (doesn't build for the right version?)<br/>
+servers down? <br/>
+
+
+To be honest, that's all there is to it. I'm testing the toolchain with the Dreamcast and I'll have someone on the Saturn. But other than that, Happy baremetal coding :)<br/>
+
+~ LUCiDViSUALS.

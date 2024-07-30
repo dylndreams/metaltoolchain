@@ -26,14 +26,14 @@ download_sources() {
     # Download and extract binutils
     if [ ! -d "binutils-$BINUTILS_VERSION" ]; then
         log "Downloading and extracting binutils"
-        wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
+        wget ftp://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VERSION.tar.gz
         tar -xzvf binutils-$BINUTILS_VERSION.tar.gz
     fi
 
     # Download and extract GCC
     if [ ! -d "gcc-$GCC_VERSION" ]; then
         log "Downloading and extracting GCC"
-        wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+        wget ftp://sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
         tar -xzvf gcc-$GCC_VERSION.tar.gz
     fi
 

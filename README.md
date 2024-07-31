@@ -14,7 +14,7 @@ Compiling all can be done with `./setuptoolchain --all`.
 
 ## known issues
 GCC 13.2 doesn't compile, it just freezes. (fixed with downgrading version to 9.2)<br/>
-Newlib can't find `sh-elf-ranlib`, so the whole compiling breaks. (still fixing)<br/>
+Newlib can't find `sh-elf-ranlib`, so the whole compiling breaks. (this is because sudo doesn't export path)<br/>
 IF Newlib builds, it won't work when used. (doesn't build for the right version?)<br/>
 servers down? <br/>
 

@@ -7,10 +7,10 @@ Mark it as executable, this can be easily done with
 `chmod +x setuptoolchain`. You should also be able to mark it in Files.<br/>
 
 This script provides options to recompile parts such as Newlib, GCC, and Binutils, just in case something (or in my case, Newlib) doesn't compile. This can be done with:
-- `./setuptoolchain --gcc`
-- `./setuptoolchain --newlib`
-- `./setuptoolchain --binutils`
-Compiling all can be done with `./setuptoolchain --all`.
+- `./setuptoolchain -g`
+- `./setuptoolchain -n`
+- `./setuptoolchain -b`
+Compiling all can be done with `./setuptoolchain -a`.
 
 ## known issues
 GCC 13.2 doesn't compile, it just freezes. (fixed with downgrading version to 9.2)<br/>

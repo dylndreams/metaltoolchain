@@ -45,19 +45,7 @@ fi
 export PATH="$PREFIX/bin:$PATH"
 mkdir -p $TOOLCHAIN_DIR
 cd $TOOLCHAIN_DIR
-export ARCH=$(uname -m)
 export NUM_PROC=$(nproc)
-export BUILD_MACH="$ARCH-pc-linux-gnu"
-export HOST_MACH="$ARCH-pc-linux-gnu"
-export PROGRAM_PREFIX="sh2-elf-"
-export CC_FOR_TARGET=$TARGET-gcc
-export LD_FOR_TARGET=$TARGET-ld
-export AS_FOR_TARGET=$TARGET-as
-export AR_FOR_TARGET=$TARGET-ar
-export RANLIB_FOR_TARGET=$TARGET-ranlib
-export newlib_cflags="${newlib_cflags} -DPREFER_SIZE_OVER_SPEED -D__OPTIMIZE_SIZE__"
-
-
 source ~/.bashrc
 
 
@@ -66,13 +54,7 @@ build_binutils() {
   wget ftp://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VERSION.tar.gz
   tar -xzf binutils-$BINUTILS_VERSION.tar.gz
   cd binutils-$BINUTILS_VERSION
-  ./configure --target=$TARGET --prefix=$PREFIX --disable-nls \
-                                             --build=$BUILD_MACH \
-                                             --host=$HOST_MACH \
-                                             --disable-werror \
-                                             --enable-libssp \
-                                             --enable-lto \
-                                             --program-prefix=$PROGRAM_PREFIX
+  ./configure --target=$TARGET --prefix=$PREFIX --disable-nls
   make -j$NUM_PROC
   sudo make -j$NUM_PROC install
   cd ..
@@ -85,25 +67,7 @@ build_gcc() {
   ./contrib/download_prerequisites
   mkdir build-gcc
   cd build-gcc
-  ../configure --target=$TARGET --prefix=$PREFIX --disable-nls \
-                                      --build=$BUILD_MACH \
-                                      --host=$HOST_MACH\
-                                      --program-prefix=$PROGRAM_PREFIX \
-                                      --enable-languages=c,c++ --with-newlib \
-                                      --with-gnu-ld \
-                                      --with-gnu-as \
-                                      --with-gcc \
-                                      --without-headers \
-                                      --without-included-gettext \
-                                      --enable-lto \
-                                      --disable-threads \
-                                      --disable-libmudflap \
-                                      --disable-libgomp \
-                                      --disable-werror \
-                                      --disable-libssp \
-                                      --disable-shared \
-                                      --disable-libgcj \
-                                      --disable-libstdcxx \ 
+  ../configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
   make -j$NUM_PROC all-gcc
   sudo make -j$NUM_PROC install-gcc
   cd ../..
@@ -115,14 +79,7 @@ build_newlib() {
   cd newlib-$NEWLIB_VERSION
   mkdir build-newlib
   cd build-newlib
-  ../configure --target=$TARGET --prefix=$PREFIX \
-                            --build=$BUILD_MACH \
-                            --host=$HOST_MACH \
-                            --program-prefix=$PROGRAM_PREFIX \
-                            --enable-target-optspac \
-                            --enable-lto \
-                            --disable-newlib-supplied-syscalls \
-                            --disable-nls
+  ../configure --target=$TARGET --prefix=$PREFIX 
   make
   source ~/.bashrc 
   sudo env "PATH=$PATH" make -j$NUM_PROC install

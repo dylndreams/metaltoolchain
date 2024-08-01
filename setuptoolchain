@@ -14,24 +14,27 @@ TOOLCHAIN_DIR=$HOME/sh-elf-toolchain
 
 # Parse command-line options
 BUILD_GCC=false
+BUILD_LIBGCC=false
 BUILD_BINUTILS=false
 BUILD_NEWLIB=false
 BUILD_ALL=false
 
-while getopts "abgn" OPTION; do
+while getopts "allbinutilsllibgccnew" OPTION; do
   case $OPTION in
-    a)
+    all)
       BUILD_ALL=true
       ;;
-    b)
+    binutils)
       BUILD_BINUTILS=true
       ;;
-    g)
+    gcc)
       BUILD_GCC=true
       ;;
-    n)
+    newlib)
       BUILD_NEWLIB=true
       ;;
+    libgcc)
+      BUILD_LIBGCC=true
   esac
 done
 
@@ -39,6 +42,7 @@ if $BUILD_ALL; then
   BUILD_GCC=true
   BUILD_BINUTILS=true
   BUILD_NEWLIB=true
+  BUILD_LIBGCC=true
 fi
 
 # Set environment variables
@@ -90,7 +94,7 @@ build_libgcc() {
   export PATH=$PREFIX/bin:$PATH
   cd gcc-$GCC_VERSION/build-gcc
   make -j$NUM_PROC all-target-libgcc
-  sudo make -j$NUM_PROC install-target-libgcc
+  sudo env "PATH=$PATH" make -j$NUM_PROC install-target-libgcc
   cd ../..
 }
 
@@ -100,11 +104,15 @@ if $BUILD_BINUTILS; then
 fi
 
 if $BUILD_GCC; then
-  build_gcc build_libgcc
+  build_gcc 
 fi
 
 if $BUILD_NEWLIB; then
   build_newlib
+fi
+
+if $BUILD_LIBGCC; then
+  build_libgcc
 fi
 
 echo "SH-ELF toolchain installation completed successfully"

@@ -19,21 +19,21 @@ BUILD_BINUTILS=false
 BUILD_NEWLIB=false
 BUILD_ALL=false
 
-while getopts "allbinutilsllibgccnew" OPTION; do
+while getopts "ablgn" OPTION; do
   case $OPTION in
-    all)
+    a)
       BUILD_ALL=true
       ;;
-    binutils)
+    b)
       BUILD_BINUTILS=true
       ;;
-    gcc)
+    g)
       BUILD_GCC=true
       ;;
-    newlib)
+    n)
       BUILD_NEWLIB=true
       ;;
-    libgcc)
+    lg)
       BUILD_LIBGCC=true
   esac
 done

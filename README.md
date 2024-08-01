@@ -17,7 +17,7 @@ This script provides options to recompile parts such as Newlib, GCC, and Binutil
 ## known issues
 GCC 13.2 doesn't compile, it just freezes. (fixed with downgrading version to 9.3)<br/>
 Not sure if it builds for all, only tested is m4-single-only.<br/>
-
+libgcc doesnt compile. (my internets out so i cant publish fix).<br/>
 
 To be honest, that's all there is to it. I'm testing the toolchain with the Dreamcast and I'll have someone on the Saturn. But other than that, Happy baremetal coding :)<br/>
 

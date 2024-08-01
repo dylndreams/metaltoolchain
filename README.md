@@ -6,10 +6,11 @@ The setuptoolchain script is used to compile/recompile the sh-elf toolchain easi
 Mark it as executable, this can be easily done with
 `chmod +x setuptoolchain`. You should also be able to mark it in Files.<br/>
 
-This script provides options to recompile parts such as Newlib, GCC, and Binutils, just in case something (or in my case, Newlib) doesn't compile. This can be done with:
+This script provides options to recompile parts such as Newlib, GCC, LIBGCC, and Binutils, just in case something (or in my case, Newlib) doesn't compile. This can be done with:
 - `./setuptoolchain -g`
 - `./setuptoolchain -n`
 - `./setuptoolchain -b`
+- `./setuptoolchain -lg`
 
 
 <br>Compiling all can be done with `./setuptoolchain -a`.<br/>

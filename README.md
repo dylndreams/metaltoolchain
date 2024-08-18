@@ -16,9 +16,9 @@ This script provides options to recompile parts such as Newlib, GCC, LIBGCC, and
 <br>Compiling all can be done with `./setuptoolchain -a`.<br/>
 
 ## known issues
-GCC 13.2 doesn't compile, it just freezes. (fixed with downgrading version to 9.3)<br/>
-Not sure if it builds for all, only tested is m4-single-only.<br/>
-libgcc doesnt compile. (my internets out so i cant publish fix).<br/>
+On Fedora, GCC pulls its dependencies from a FTP source, which Fedora's wget doesn't support. The only way you can fix this is if you manually go to contrib/download_prerequisites and change the `base_url` variable from 'ftp' to 'https'.<br/>
+The automatic cleanup system may messup libgcc building seperately. Just hope everything works first try.<br/>
+
 
 To be honest, that's all there is to it. I'm testing the toolchain with the Dreamcast and I'll have someone on the Saturn. But other than that, Happy baremetal coding :)<br/>
 

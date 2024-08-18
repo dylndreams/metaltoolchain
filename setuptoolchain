@@ -55,8 +55,12 @@ source ~/.bashrc
 
 # Functions to build each component
 build_binutils() {
-  wget ftp://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VERSION.tar.gz
+if ! [ -f "binutils-$BINUTILS_VERSION.tar.gz" ]; then
+  curl -O https://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VERSION.tar.gz
+fi
+if ! [ -d "binutils-$BINUTILS_VERSION" ]; then
   tar -xzf binutils-$BINUTILS_VERSION.tar.gz
+fi
   cd binutils-$BINUTILS_VERSION
   ./configure --target=$TARGET --prefix=$PREFIX --disable-nls
   make -j$NUM_PROC
@@ -65,8 +69,12 @@ build_binutils() {
 }
 
 build_gcc() {
-  wget ftp://sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+if ! [ -f " gcc-$GCC_VERSION.tar.gz" ]; then
+  curl -o  gcc-$GCC_VERSION.tar.gz --ftp-pasv  https://sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+fi
+ if ! [ -d "gcc-$GCC_VERSION" ]; then
   tar -xzf gcc-$GCC_VERSION.tar.gz
+fi  
   cd gcc-$GCC_VERSION
   ./contrib/download_prerequisites
   mkdir build-gcc
@@ -78,8 +86,12 @@ build_gcc() {
 }
 
 build_newlib() {
-  wget ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
+if ! [ -f " newlib-$NEWLIB_VERSION.tar.gz" ]; then
+  curl -O https://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
+fi
+if ! [ -d "newlib-$NEWLIB_VERSION" ]; then
   tar -xzf newlib-$NEWLIB_VERSION.tar.gz
+fi
   cd newlib-$NEWLIB_VERSION
   mkdir build-newlib
   cd build-newlib
@@ -92,6 +104,9 @@ build_newlib() {
 
 build_libgcc() {
   export PATH=$PREFIX/bin:$PATH
+   if ! [ -d "gcc-$GCC_VERSION" ]; then
+     build_gcc()
+   fi
   cd gcc-$GCC_VERSION/build-gcc
   make -j$NUM_PROC all-target-libgcc
   sudo env "PATH=$PATH" make -j$NUM_PROC install-target-libgcc
@@ -116,3 +131,6 @@ if $BUILD_LIBGCC; then
 fi
 
 echo "SH-ELF toolchain installation completed successfully"
+echo "cleaning up..."
+cd $HOME
+rm -d -r -f $TOOLCHAIN_DIR

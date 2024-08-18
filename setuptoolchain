@@ -106,7 +106,14 @@ fi
 
 build_libgcc() {
   export PATH=$PREFIX/bin:$PATH
+  if ! [ -f " gcc-$GCC_VERSION.tar.gz" ]; then
+  curl -o  gcc-$GCC_VERSION.tar.gz --ftp-pasv  https://sourceware.org/pub/gcc/releases/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+fi
+ if ! [ -d "gcc-$GCC_VERSION" ]; then
+  tar -xzf gcc-$GCC_VERSION.tar.gz
+fi  
   cd gcc-$GCC_VERSION/build-gcc
+  
   make -j$NUM_PROC all-target-libgcc
   sudo env "PATH=$PATH" make -j$NUM_PROC install-target-libgcc
   cd ../..
@@ -130,6 +137,8 @@ if $BUILD_LIBGCC; then
 fi
 
 echo "SH-ELF toolchain installation completed successfully"
-echo "cleaning up..."
-cd $HOME
-rm -d -r -f $TOOLCHAIN_DIR
+if $BUILD_ALL; then
+ echo "cleaning up..." 
+ cd $HOME
+ rm -d -r -f $TOOLCHAIN_DIR
+fi

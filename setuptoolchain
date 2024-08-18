@@ -77,6 +77,7 @@ fi
 fi  
   cd gcc-$GCC_VERSION
   ./contrib/download_prerequisites
+  rm -d -r -f build-gcc
   mkdir build-gcc
   cd build-gcc
   ../configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
@@ -93,6 +94,7 @@ if ! [ -d "newlib-$NEWLIB_VERSION" ]; then
   tar -xzf newlib-$NEWLIB_VERSION.tar.gz
 fi
   cd newlib-$NEWLIB_VERSION
+  rm -d -r -f build-newlib
   mkdir build-newlib
   cd build-newlib
   ../configure --target=$TARGET --prefix=$PREFIX 
@@ -104,9 +106,6 @@ fi
 
 build_libgcc() {
   export PATH=$PREFIX/bin:$PATH
-   if ! [ -d "gcc-$GCC_VERSION" ]; then
-     build_gcc()
-   fi
   cd gcc-$GCC_VERSION/build-gcc
   make -j$NUM_PROC all-target-libgcc
   sudo env "PATH=$PATH" make -j$NUM_PROC install-target-libgcc
